@@ -1,0 +1,14 @@
+{
+  "name": "slack-lunch",
+  "version": "1.0.0",
+  "description": "Slack bot for collecting daily lunch menus in selected restaurants",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tomas Jiricek",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.6.0"
+  }
+}

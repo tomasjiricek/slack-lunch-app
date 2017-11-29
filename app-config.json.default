@@ -1,0 +1,26 @@
+{
+  "SLACK": {
+    "host": "hooks.slack.com",
+    "path": "/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+  },
+  "ZOMATO": {
+    "headers": {
+      "Accept": "application/json",
+      "user-key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "request": {
+      "host": "developers.zomato.com",
+      "apiPath": "/api/v2.1/"
+    },
+    "restaurants": [
+      {
+        "id": 16506447,
+        "name": "Original Formanka"
+      },
+      {
+        "id": 18337487,
+        "name": "Mr. Bao"
+      }
+    ]
+  }
+}

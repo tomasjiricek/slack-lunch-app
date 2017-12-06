@@ -9,6 +9,7 @@
   "author": "Tomas Jiricek",
   "license": "ISC",
   "dependencies": {
-    "async": "^2.6.0"
+    "async": "^2.6.0",
+    "htmlparser2": "^3.9.2"
   }
 }

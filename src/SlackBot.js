@@ -41,7 +41,7 @@ class SlackBot {
             path: options.path
         }
 
-        return new Promise((reject, resolve) => {
+        return new Promise((resolve, reject) => {
             if (this._requestData instanceof Object) {
                 this._createRequest(requestOptions, postData, (err, data) => {
                     if (err) {

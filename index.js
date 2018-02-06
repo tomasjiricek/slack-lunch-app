@@ -24,9 +24,14 @@ try {
     process.exit();
 }
 
+let slackBot = new SlackBot(appConfig.SLACK);
+
 let genericLoader = new GenericLoader();
-let slackBot = new SlackBot(appConfig.SLACK_TEST);
 let zomatoLoader = new ZomatoLoader(appConfig.ZOMATO.loaderData);
+
+let andelParser = new AndelParser();
+let bernardParser = new BernardParser();
+let tradiceParser = new TradiceParser();
 let zomatoParser = new ZomatoParser();
 
 function getRestaurantMenu(url, parser) {
@@ -48,15 +53,15 @@ function getRestaurantMenu(url, parser) {
 }
 
 function getAndelMenu() {
-    return getRestaurantMenu(ANDEL_REQUEST_URL, new AndelParser());
+    return getRestaurantMenu(ANDEL_REQUEST_URL, andelParser);
 }
 
 function getBernardMenu() {
-    return getRestaurantMenu(BERNARD_REQUEST_URL, new BernardParser());
+    return getRestaurantMenu(BERNARD_REQUEST_URL, bernardParser);
 }
 
 function getTradiceMenu() {
-    return getRestaurantMenu(TRADICE_REQUEST_URL, new TradiceParser());
+    return getRestaurantMenu(TRADICE_REQUEST_URL, tradiceParser);
 }
 
 function getZomatoMenu() {

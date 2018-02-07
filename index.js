@@ -201,7 +201,7 @@ async function getAllLunchMenus() {
     }
 
     if (messages.length > 0) {
-        slackBot.sendMessage(messages.join('\n\n'))
+        slackBot.sendMessage(messages.join('\n'))
             .then((data) => {
                 console.log('Slack: message sent');
             }, (err) => {

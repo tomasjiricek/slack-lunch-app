@@ -2,7 +2,6 @@ const timers = require('timers');
 const process = require('process');
 
 const AndelParser = require('./src/parsers/AndelParser');
-const BernardParser = require('./src/parsers/BernardParser');
 const GenericLoader = require('./src/loaders/GenericLoader');
 const SlackBot = require('./src/SlackBot');
 const TradiceParser = require('./src/parsers/TradiceParser');
@@ -12,7 +11,6 @@ const ZomatoParser = require('./src/parsers/ZomatoParser');
 const HtmlParser = require('htmlparser2').Parser;
 
 const ANDEL_REQUEST_URL = 'http://www.restauraceandel.cz/menu';
-const BERNARD_REQUEST_URL = 'http://www.bernardpub.cz/pub/andel';
 const TRADICE_REQUEST_URL = 'http://tradiceandel.cz/cz/denni-nabidka/';
 
 let appConfig;
@@ -30,7 +28,6 @@ let genericLoader = new GenericLoader();
 let zomatoLoader = new ZomatoLoader(appConfig.ZOMATO.loaderData);
 
 let andelParser = new AndelParser();
-let bernardParser = new BernardParser();
 let tradiceParser = new TradiceParser();
 let zomatoParser = new ZomatoParser();
 
@@ -40,7 +37,7 @@ function getRestaurantMenu(url, parser) {
             if (err) {
                 reject(err);
             } else {
-                parser.parse(data, (err, data) => {
+                parser.parse(data.toString(), (err, data) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -56,10 +53,6 @@ function getAndelMenu() {
     return getRestaurantMenu(ANDEL_REQUEST_URL, andelParser);
 }
 
-function getBernardMenu() {
-    return getRestaurantMenu(BERNARD_REQUEST_URL, bernardParser);
-}
-
 function getTradiceMenu() {
     return getRestaurantMenu(TRADICE_REQUEST_URL, tradiceParser);
 }
@@ -70,10 +63,13 @@ function getZomatoMenu() {
             if (err) {
                 reject(err);
             } else {
-                let restaurants = zomatoParser.parse(data).map((restaurant) => {
-                    let dishes = restaurant.dishes.join('\n');
-                    return `*${restaurant.name}*\n${dishes}\n\n`;
-                });
+                let restaurants = zomatoParser.parse(data)
+                    .filter(
+                        (restaurant) => (restaurant.dishes instanceof Array)
+                    ).map((restaurant) => {
+                        let dishes = restaurant.dishes.join('\n');
+                        return `*${restaurant.name}*\n${dishes}\n\n`;
+                    });
                 resolve(restaurants.join('\n'));
             }
         });
@@ -150,21 +146,22 @@ Date.prototype.timeBetween = function (timeFrom, timeTo) {
 var menusSent = false;
 
 function sendSlackMessage(message, notify = false) {
-    slackBot.sendMessage(message)
-        .then((err) => {
-            console.log(err);
-        }, (data) => {
+    slackBot.sendMessage(message).then(
+        (data) => {
             if (notify) {
-                console.log('Message sent: ' + message);
+                console.log('Message sent:', message);
             }
-        });
+        },
+        (err) => {
+            console.log('Slack Error:', err);
+        }
+    );
 }
 
 async function getAllLunchMenus() {
     var messages = [];
 
     var andel = null;
-    var bernard = null;
     var tradice = null;
     var zomato = null;
 
@@ -174,14 +171,6 @@ async function getAllLunchMenus() {
         console.log('Andel: succeed');
     } catch (e) {
         console.log("Andel: failed");
-    }
-
-    try {
-        bernard = await getBernardMenu();
-        messages.push(bernard);
-        console.log("Bernard: succeed");
-    } catch (e) {
-        console.log("Bernard: failed");
     }
 
     try {
@@ -201,7 +190,7 @@ async function getAllLunchMenus() {
     }
 
     if (messages.length > 0) {
-        slackBot.sendMessage(messages.join('\n'))
+        slackBot.sendMessage(messages.join('\n\n'))
             .then((data) => {
                 console.log('Slack: message sent');
             }, (err) => {
@@ -214,13 +203,9 @@ function tickerScript() {
     let date = new Date();
 
     if (date.getDay() > 0 && date.getDay() < 6) {
-        if (date.timeBetween('11:30', '12:15') && !menusSent) {
+        if (date.timeBetween('11:25', '12:15') && !menusSent) {
             getAllLunchMenus();
             menusSent = true;
-        }
-
-        if (date.timeEqual('12:00:00')) {
-            sendSlackMessage('Hey, <!channel> it\'s *lunch time*!');
         }
     }
 
@@ -232,3 +217,30 @@ function tickerScript() {
 }
 
 tickerScript();
+
+/*
+var Pdf2json = require("pdf2json");
+var http = require("http");
+
+var pdfParser = new Pdf2json();
+
+function readPDF() {
+  http.get("http://peronsmichov.cz/images/dokumenty/poledni-menu.pdf", (res) => {
+    var data = [];
+    res.on("data", chunk => {
+      data.push(chunk);
+    });
+    res.on("end", () => {
+      var buffer = Buffer.concat(data);
+      console.log(buffer);
+      pdfParser.parseBuffer(buffer);
+    });
+  });
+}
+
+  pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError) );
+  pdfParser.on("pdfParser_dataReady", pdfData => {
+    console.log(pdfData);
+  });
+
+*/

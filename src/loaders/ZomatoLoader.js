@@ -68,9 +68,9 @@ class ZomatoLoader {
 
     _sendRequest(options, callback) {
         let req = https.get(options, (res) => {
-            let rawData = '';
+            let rawData = [];
 
-            res.on('data', (chunk) => rawData += chunk);
+            res.on('data', (chunk) => rawData.push(chunk));
             res.on('end', () => this._onRequestEnd(res, rawData, callback));
         });
 

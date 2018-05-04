@@ -28,10 +28,10 @@ class GenericLoader {
 
     _sendRequest(url, callback) {
         let req = http.get(url, (res) => {
-            let rawData = '';
+            let rawData = [];
 
-            res.on('data', (chunk) => rawData += chunk);
-            res.on('end', () => this._onRequestEnd(url, res, rawData, callback));
+            res.on('data', (chunk) => rawData.push(chunk));
+            res.on('end', () => this._onRequestEnd(url, res, Buffer.concat(rawData), callback));
         });
 
         req.on('error', callback);

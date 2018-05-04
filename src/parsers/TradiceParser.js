@@ -3,7 +3,11 @@ const parseHtmlViaRegEx = require('./ParserUtil').parseHtmlViaRegEx;
 
 class TradiceParser {
     constructor() {
-        this._parserProps = {
+        this._parserProps = this.emptyData();
+    }
+
+    emptyData() {
+        return {
             dishCellStarted: false,
             dishNameCellStarted: false,
             dishes: []
@@ -11,6 +15,7 @@ class TradiceParser {
     }
 
     parse(data, callback) {
+        this._parserProps = this.emptyData();
         let date = new Date();
         let czechDateFormat = `${date.getDate()}\\. ${date.getMonth() + 1}\\.`;
         this._parseHtml(data, czechDateFormat, (err, data) => {

@@ -1,10 +1,15 @@
 const HtmlParser = require('htmlparser2').Parser;
+const parseHtmlViaRegEx = require('./ParserUtil').parseHtmlViaRegEx;
 
-const DAYS = ['', 'pondeli', 'utery', 'streda', 'ctvrtek', 'patek', ''];
+const DAYS = ['nedele', 'pondeli', 'utery', 'streda', 'ctvrtek', 'patek', 'sobota'];
 
 class AndelParser {
     constructor() {
-        this._parserProps = {
+        this._parserProps = this.emptyData();
+    }
+
+    emptyData() {
+        return {
             headingStarted: false,
             headingsCount: 0,
             tableCellsCount: 0,
@@ -19,6 +24,7 @@ class AndelParser {
     }
 
     parse(data, callback) {
+        this._parserProps = this.emptyData();
         let dayOfWeek = DAYS[new Date().getDay()];
         this._parseHtml(data, dayOfWeek, (err, data) => {
             if (err) {
@@ -32,7 +38,7 @@ class AndelParser {
     _parseHtml(html, dayOfWeek, callback) {
         if (html) {
             let rgExp = new RegExp(`<div class="[^"]*" id="${dayOfWeek}">(.*?)<\/div>`, 'i');
-            let rgExpData = html.replace(/\r\n|\n|\t/g, '').match(rgExp);
+            let rgExpData = parseHtmlViaRegEx(html, rgExp);
 
             if (rgExpData instanceof Array && rgExpData.length == 2) {
                 rgExpData = rgExpData[1];
@@ -57,14 +63,15 @@ class AndelParser {
     _parseHtmlOutputArray(data) {
         let soups = this._parseDishes(data[0]);
         let dishes = this._parseDishes(data[1]);
-        soups = '>*Polévky*\n' + soups.join('\n');
+        soups = soups.length > 0 ? ('>*Polévky*\n' + soups.join('\n') + '\n\n') : "";
         dishes = '>*Hlavní jídla*\n' + dishes.join('\n');
 
-        return '*Restaurace Anděl*\n' + soups + '\n\n' + dishes;
+        return '*Restaurace Anděl*\n' + soups + dishes;
     }
 
     _parseDishes(dishes) {
-        return dishes.map((obj) => (`>•  ${obj[0]}`));
+        return dishes.filter((obj) => (obj[0] !== undefined && obj[0].length > 3))
+            .map((obj) => (`>•  ${obj[0]}`));
     }
 
     _onOpenTag(tagName, attributes) {
@@ -79,17 +86,17 @@ class AndelParser {
             this._parserProps.tableRowStarted = true;
             this._parserProps.tableRowsCount++;
             this._parserProps.tables[this._parserProps.tablesCount - 1][this._parserProps.tableRowsCount - 1] = [];
+        } else if (tagName === 'td' && this._parserProps.tableRowStarted) {
+            this._parserProps.tableCellsCount++;
         }
     }
 
     _onText(text) {
         if (this._parserProps.headingStarted) {
             this._parserProps.headings.push(text);
-        } else if (this._parserProps.tableRowStarted) {
-            this._parserProps.tableCellsCount++;
         }
 
-        if (this._parserProps.tableCellsCount > 1) {
+        if (this._parserProps.tableCellsCount > 1 && text.length > 1) {
             let tableIndex = this._parserProps.tablesCount - 1;
             let rowIndex = this._parserProps.tableRowsCount - 1;
             this._parserProps.tables[tableIndex][rowIndex].push(text.trim());

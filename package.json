@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "async": "^2.6.0",
-    "htmlparser2": "^3.9.2"
+    "htmlparser2": "^3.9.2",
+    "pdf2json": "^1.1.7"
   }
 }

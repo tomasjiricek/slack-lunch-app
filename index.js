@@ -1,16 +1,15 @@
-const timers = require('timers');
 const process = require('process');
 
-const AndelParser = require('./src/parsers/AndelParser');
-const GenericLoader = require('./src/loaders/GenericLoader');
 const SlackBot = require('./src/SlackBot');
+const AndelParser = require('./src/parsers/AndelParser');
+const HlubinaParser = require('./src/parsers/HlubinaParser');
 const TradiceParser = require('./src/parsers/TradiceParser');
-const ZomatoLoader = require('./src/loaders/ZomatoLoader');
 const ZomatoParser = require('./src/parsers/ZomatoParser');
-
-const HtmlParser = require('htmlparser2').Parser;
+const GenericLoader = require('./src/loaders/GenericLoader');
+const ZomatoLoader = require('./src/loaders/ZomatoLoader');
 
 const ANDEL_REQUEST_URL = 'http://www.restauraceandel.cz/menu';
+const HLUBINA_REQUEST_URL = 'http://www.senkyrna.cz/senkyrna-hlubina';
 const TRADICE_REQUEST_URL = 'http://tradiceandel.cz/cz/denni-nabidka/';
 
 let appConfig;
@@ -28,6 +27,7 @@ let genericLoader = new GenericLoader();
 let zomatoLoader = new ZomatoLoader(appConfig.ZOMATO.loaderData);
 
 let andelParser = new AndelParser();
+let hlubinaParser = new HlubinaParser();
 let tradiceParser = new TradiceParser();
 let zomatoParser = new ZomatoParser();
 
@@ -51,6 +51,10 @@ function getRestaurantMenu(url, parser) {
 
 function getAndelMenu() {
     return getRestaurantMenu(ANDEL_REQUEST_URL, andelParser);
+}
+
+function getHlubinaMenu() {
+    return getRestaurantMenu(HLUBINA_REQUEST_URL, hlubinaParser);
 }
 
 function getTradiceMenu() {
@@ -162,6 +166,7 @@ async function getAllLunchMenus() {
     var messages = [];
 
     var andel = null;
+    var hlubina = null;
     var tradice = null;
     var zomato = null;
 
@@ -182,6 +187,14 @@ async function getAllLunchMenus() {
     }
 
     try {
+        hlubina = await getHlubinaMenu();
+        messages.push(hlubina);
+        console.log("Hlubina: succeed");
+    } catch (e) {
+        console.log("Hlubina: failed");
+    }
+                 
+    try {
         zomato = await getZomatoMenu();
         messages.push(zomato);
         console.log("Zomato: succeed");
@@ -190,13 +203,7 @@ async function getAllLunchMenus() {
     }
 
     if (messages.length > 0) {
-        slackBot.sendMessage(messages.join('\n\n'))
-            .then((data) => {
-                console.log('Slack: message sent');
-            }, (err) => {
-                console.log(err);
-            });
-    }
+        sendSlackMessage(messages.join('\n\n');
 }
 
 function tickerScript() {

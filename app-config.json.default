@@ -1,4 +1,5 @@
 {
+  "defaultSlackChannel": "SLACK",
   "SLACK": {
     "host": "hooks.slack.com",
     "path": "/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"

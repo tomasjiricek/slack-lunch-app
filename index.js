@@ -203,7 +203,8 @@ async function getAllLunchMenus() {
     }
 
     if (messages.length > 0) {
-        sendSlackMessage(messages.join('\n\n');
+        sendSlackMessage(messages.join('\n\n'));
+    }
 }
 
 function tickerScript() {

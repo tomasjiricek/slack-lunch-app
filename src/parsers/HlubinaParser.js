@@ -19,7 +19,7 @@ class HlubinaParser {
 
     parse(data, callback) {
         this._parserProps = this.emptyData();
-        this._parseHtml(data, (err, data) => {
+        this._parseHtml(data.toString(), (err, data) => {
             if (err) {
                 callback(err);
             } else {
@@ -47,6 +47,10 @@ class HlubinaParser {
     _parseHtmlOutputArray(data) {
         let dishes = this._parseDishes(data);
 
+        if (dishes.length == 0) {
+            return '';
+        }
+        
         return '*Hlubina*\n' + dishes.join('\n');
     }
 

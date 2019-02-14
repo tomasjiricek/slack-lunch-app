@@ -26,7 +26,7 @@ class AndelParser {
     parse(data, callback) {
         this._parserProps = this.emptyData();
         let dayOfWeek = DAYS[new Date().getDay()];
-        this._parseHtml(data, dayOfWeek, (err, data) => {
+        this._parseHtml(data.toString(), dayOfWeek, (err, data) => {
             if (err) {
                 callback(err);
             } else {

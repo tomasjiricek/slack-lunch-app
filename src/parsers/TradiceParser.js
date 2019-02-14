@@ -18,7 +18,7 @@ class TradiceParser {
         this._parserProps = this.emptyData();
         let date = new Date();
         let czechDateFormat = `${date.getDate()}\\. ${date.getMonth() + 1}\\.`;
-        this._parseHtml(data, czechDateFormat, (err, data) => {
+        this._parseHtml(data.toString(), czechDateFormat, (err, data) => {
             if (err) {
                 callback(err);
             } else {

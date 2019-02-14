@@ -4,6 +4,7 @@ const DateUtil = require('./src/DateUtil');
 const SlackBot = require('./src/SlackBot');
 const AndelParser = require('./src/parsers/AndelParser');
 const HlubinaParser = require('./src/parsers/HlubinaParser');
+const MrBaoParser = require('./src/parsers/MrBaoParser');
 const TradiceParser = require('./src/parsers/TradiceParser');
 const ZomatoParser = require('./src/parsers/ZomatoParser');
 const GenericLoader = require('./src/loaders/GenericLoader');
@@ -29,6 +30,7 @@ let zomatoLoader = new ZomatoLoader(appConfig.ZOMATO.loaderData);
 
 let andelParser = new AndelParser();
 let hlubinaParser = new HlubinaParser();
+let mrBaoParser = new MrBaoParser();
 let tradiceParser = new TradiceParser();
 let zomatoParser = new ZomatoParser();
 
@@ -38,7 +40,7 @@ function getRestaurantMenu(url, parser) {
             if (err) {
                 reject(err);
             } else {
-                parser.parse(data.toString(), (err, data) => {
+                parser.parse(data, (err, data) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -52,6 +54,10 @@ function getRestaurantMenu(url, parser) {
 
 function getAndelMenu() {
     return getRestaurantMenu(ANDEL_REQUEST_URL, andelParser);
+}
+
+function getMrBaoMenu() {
+    return getRestaurantMenu("http://www.mrbao.cz/menu/", mrBaoParser);
 }
 
 function getHlubinaMenu() {
@@ -100,12 +106,13 @@ function sendSlackMessage(message, notify = false) {
 }
 
 async function getAllLunchMenus() {
-    var messages = [];
+    let messages = [];
 
-    var andel = null;
-    var hlubina = null;
-    var tradice = null;
-    var zomato = null;
+    let andel = null;
+    let hlubina = null;
+    let mrBao = null;
+    let tradice = null;
+    let zomato = null;
 
     try {
         andel = await getAndelMenu();
@@ -130,13 +137,21 @@ async function getAllLunchMenus() {
     } catch (e) {
         console.log("Hlubina: failed");
     }
-                 
+
     try {
         zomato = await getZomatoMenu();
         messages.push(zomato);
         console.log("Zomato: succeed");
     } catch (e) {
         console.log("Zomato: failed");
+    }
+
+    try {
+        mrBao = await getMrBaoMenu();
+        messages.push(mrBao);
+        console.log("MrBao: succeed");
+    } catch (e) {
+        console.log("MrBao: failed");
     }
 
     if (messages.length > 0) {
@@ -162,30 +177,4 @@ function tickerScript() {
 }
 
 tickerScript();
-
-/*
-var Pdf2json = require("pdf2json");
-var http = require("http");
-
-var pdfParser = new Pdf2json();
-
-function readPDF() {
-  http.get("http://peronsmichov.cz/images/dokumenty/poledni-menu.pdf", (res) => {
-    var data = [];
-    res.on("data", chunk => {
-      data.push(chunk);
-    });
-    res.on("end", () => {
-      var buffer = Buffer.concat(data);
-      console.log(buffer);
-      pdfParser.parseBuffer(buffer);
-    });
-  });
-}
-
-  pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError) );
-  pdfParser.on("pdfParser_dataReady", pdfData => {
-    console.log(pdfData);
-  });
-
-*/
+getAllLunchMenus();

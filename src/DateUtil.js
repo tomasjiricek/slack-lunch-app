@@ -30,7 +30,6 @@ function timeBetween(timeFrom, timeTo) {
     }
 
     function isBetween(value, min, max) {
-        console.log("after min:", min - value <= 0, "before max:", max - value >= 0);
         return value >= min && value <= max;
     }
 

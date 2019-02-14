@@ -1,5 +1,6 @@
 const async = require('async');
 const http = require('http');
+const https = require('https');
 
 class GenericLoader {
     getPageData(url, callback) {
@@ -19,7 +20,7 @@ class GenericLoader {
             this._sendRequest(res.headers.location, callback);
         } else {
             if (statusCode !== 200) {
-                callback(new Error('Request to "%s" failed (%d):', url, statusCode, data));
+                callback(new Error(`Request to "${url}" failed (${statusCode}):`, data));
             } else {
                 callback(null, data);
             }
@@ -27,7 +28,8 @@ class GenericLoader {
     }
 
     _sendRequest(url, callback) {
-        let req = http.get(url, (res) => {
+        let module = url.indexOf('https') != -1 ? https : http;
+        let req = module.get(url, (res) => {
             let rawData = [];
 
             res.on('data', (chunk) => rawData.push(chunk));

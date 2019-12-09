@@ -28,15 +28,19 @@ class GenericLoader {
     }
 
     _sendRequest(url, callback) {
-        let module = url.indexOf('https') != -1 ? https : http;
-        let req = module.get(url, (res) => {
-            let rawData = [];
+        if (url) {
+            let module = url.indexOf('https') != -1 ? https : http;
+            let req = module.get(url, (res) => {
+                let rawData = [];
 
-            res.on('data', (chunk) => rawData.push(chunk));
-            res.on('end', () => this._onRequestEnd(url, res, Buffer.concat(rawData), callback));
-        });
+                res.on('data', (chunk) => rawData.push(chunk));
+                res.on('end', () => this._onRequestEnd(url, res, Buffer.concat(rawData), callback));
+            });
 
-        req.on('error', callback);
+            req.on('error', callback);
+        } else {
+            callback(new Error('No URL was given.'));
+        }
     }
 }
 

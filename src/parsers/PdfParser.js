@@ -12,11 +12,11 @@ class PdfParser {
         }).catch(callback);
     }
 
-    _customPdfRenderer(pageData) {    
+    _customPdfRenderer(pageData) {
         return pageData.getTextContent(RENDER_OPTIONS)
             .then((textContent) => this._processTextContent(textContent));
     }
-    
+
     _getParsedPdfArray(text) {
         let pages = text.split('\n\n');
 
@@ -34,19 +34,19 @@ class PdfParser {
         for (let i in textContent.items) {
             let item = textContent.items[i];
             var rId = `i${item.transform[5]}`;
-            
+
             if (!rows[rId]) {
                 rows[rId] = [];
             }
-            
+
             rows[rId].push(item.str);
-        }            
+        }
 
         for (let idx in rows) {
             rowsArray.push(rows[idx].join('').replace(/\t/g, ' ').replace(/ {2,}/g, ' ').trim());
         }
 
-        return rowsArray.join('\r\n');        
+        return rowsArray.join('\r\n');
     }
 }
 

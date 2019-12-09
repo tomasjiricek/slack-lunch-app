@@ -50,7 +50,7 @@ class HlubinaParser {
         if (dishes.length == 0) {
             return '';
         }
-        
+
         return '*Hlubina*\n' + dishes.join('\n');
     }
 

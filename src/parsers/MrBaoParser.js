@@ -45,7 +45,7 @@ class MrBaoParser {
         if (html) {
             let rgExp = new RegExp(`'([^"']+Poledn[^-]+-menu[^"']+)'`, 'i');
             let rgExpData = parseHtmlViaRegEx(html, rgExp);
-            
+
             if (rgExpData instanceof Array && rgExpData.length >= 2) {
                 return encodeURI(rgExpData[1]);
             } else {
@@ -73,7 +73,7 @@ class MrBaoParser {
     _processPdfParserResponse(callback, err, data) {
         if (data instanceof Array && data.length > 0) {
             let currentMenu = this._getMenuForCurrentDay(data[0]);
-            callback(err, this._parseOutputArray(currentMenu));    
+            callback(err, this._parseOutputArray(currentMenu));
         } else {
             callback(new Error('Invalid parsed data from PDF.'));
         }

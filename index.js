@@ -176,4 +176,5 @@ function tickerScript() {
     setTimeout(tickerScript, 1000);
 }
 
-tickerScript();
+//tickerScript();
+getAllLunchMenus();

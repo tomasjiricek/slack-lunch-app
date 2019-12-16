@@ -5,6 +5,7 @@ const SlackBot = require('./src/SlackBot');
 const AndelParser = require('./src/parsers/AndelParser');
 const HlubinaParser = require('./src/parsers/HlubinaParser');
 const MrBaoParser = require('./src/parsers/MrBaoParser');
+const SantoskaParser = require('./src/parsers/SantoskaParser');
 const TradiceParser = require('./src/parsers/TradiceParser');
 const ZomatoParser = require('./src/parsers/ZomatoParser');
 const GenericLoader = require('./src/loaders/GenericLoader');
@@ -12,6 +13,8 @@ const ZomatoLoader = require('./src/loaders/ZomatoLoader');
 
 const ANDEL_REQUEST_URL = 'http://www.restauraceandel.cz/menu';
 const HLUBINA_REQUEST_URL = 'http://www.senkyrna.cz/senkyrna-hlubina';
+const MR_BAO_REQUEST_URL = 'http://www.mrbao.cz/menu/';
+const SANTOSKA_REQUEST_URL = 'http://www.klubsantoska.cz/denni%20menu.html';
 const TRADICE_REQUEST_URL = 'http://tradiceandel.cz/cz/denni-nabidka/';
 
 let appConfig;
@@ -31,6 +34,7 @@ let zomatoLoader = new ZomatoLoader(appConfig.ZOMATO.loaderData);
 let andelParser = new AndelParser();
 let hlubinaParser = new HlubinaParser();
 let mrBaoParser = new MrBaoParser();
+let santoskaParser = new SantoskaParser();
 let tradiceParser = new TradiceParser();
 let zomatoParser = new ZomatoParser();
 
@@ -57,11 +61,15 @@ function getAndelMenu() {
 }
 
 function getMrBaoMenu() {
-    return getRestaurantMenu("http://www.mrbao.cz/menu/", mrBaoParser);
+    return getRestaurantMenu(MR_BAO_REQUEST_URL, mrBaoParser);
 }
 
 function getHlubinaMenu() {
     return getRestaurantMenu(HLUBINA_REQUEST_URL, hlubinaParser);
+}
+
+function getSantoskaMenu() {
+    return getRestaurantMenu(SANTOSKA_REQUEST_URL, santoskaParser);
 }
 
 function getTradiceMenu() {
@@ -106,16 +114,10 @@ function sendSlackMessage(message, notify = false) {
 }
 
 async function getAllLunchMenus() {
-    let messages = [];
-
-    let andel = null;
-    let hlubina = null;
-    let mrBao = null;
-    let tradice = null;
-    let zomato = null;
+    const messages = [];
 
     try {
-        andel = await getAndelMenu();
+        const andel = await getAndelMenu();
         messages.push(andel);
         console.log('Andel: succeed');
     } catch (e) {
@@ -123,7 +125,7 @@ async function getAllLunchMenus() {
     }
 
     try {
-        tradice = await getTradiceMenu();
+        const tradice = await getTradiceMenu();
         messages.push(tradice);
         console.log("Tradice: succeed");
     } catch (e) {
@@ -131,7 +133,7 @@ async function getAllLunchMenus() {
     }
 
     try {
-        hlubina = await getHlubinaMenu();
+        const hlubina = await getHlubinaMenu();
         messages.push(hlubina);
         console.log("Hlubina: succeed");
     } catch (e) {
@@ -139,7 +141,7 @@ async function getAllLunchMenus() {
     }
 
     try {
-        zomato = await getZomatoMenu();
+        const zomato = await getZomatoMenu();
         messages.push(zomato);
         console.log("Zomato: succeed");
     } catch (e) {
@@ -147,11 +149,19 @@ async function getAllLunchMenus() {
     }
 
     try {
-        mrBao = await getMrBaoMenu();
+        const mrBao = await getMrBaoMenu();
         messages.push(mrBao);
         console.log("MrBao: succeed");
     } catch (e) {
         console.log("MrBao: failed");
+    }
+
+    try {
+        const santoska = await getSantoskaMenu();
+        messages.push(santoska);
+        console.log("Santoska: succeed");
+    } catch (e) {
+        console.log("Santoska: failed");
     }
 
     if (messages.length > 0) {

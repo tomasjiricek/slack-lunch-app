@@ -170,22 +170,4 @@ async function getAllLunchMenus() {
     }
 }
 
-function tickerScript() {
-    let date = new Date();
-
-    if (date.getDay() > 0 && date.getDay() < 6) {
-        if (date.timeBetween('11:29', '12:30') && !menusSent) {
-            getAllLunchMenus();
-            menusSent = true;
-        }
-    }
-
-    if (date.timeEqual('12:31') && menusSent) {
-        menusSent = false;
-    }
-
-    setTimeout(tickerScript, 1000);
-}
-
-//tickerScript();
 getAllLunchMenus();

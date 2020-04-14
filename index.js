@@ -156,13 +156,14 @@ async function getAllLunchMenus() {
         console.log("MrBao: failed");
     }
 
-    try {
-        const santoska = await getSantoskaMenu();
-        messages.push(santoska);
-        console.log("Santoska: succeed");
-    } catch (e) {
-        console.log("Santoska: failed");
-    }
+    // Santoska changed web structure - modify parser
+    // try {
+    //     const santoska = await getSantoskaMenu();
+    //     messages.push(santoska);
+    //     console.log("Santoska: succeed");
+    // } catch (e) {
+    //     console.log("Santoska: failed");
+    // }
 
     if (messages.length > 0) {
         sendSlackMessage(messages.join('\n\n'));

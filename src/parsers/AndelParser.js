@@ -63,15 +63,20 @@ class AndelParser {
     _parseHtmlOutputArray(data) {
         let soups = this._parseDishes(data[0]);
         let dishes = this._parseDishes(data[1]);
-        soups = soups.length > 0 ? ('>*Polévky*\n' + soups.join('\n') + '\n\n') : "";
-        dishes = '>*Hlavní jídla*\n' + dishes.join('\n');
 
-        return '*Restaurace Anděl*\n' + soups + dishes;
+        soups = soups.length > 0 ? ('>*Polévky*\n' + soups.join('\n') + '\n') : "";
+        dishes = dishes.length > 0 ? ('>*Hlavní jídla*\n' + dishes.join('\n')) : "";
+
+        if (soups.length > 0 || dishes.length > 0) {
+            return '*Restaurace Anděl*\n' + soups + dishes;
+        }
+
+        return null;
     }
 
     _parseDishes(dishes) {
         return dishes.filter((obj) => (obj[0] !== undefined && obj[0].length > 3))
-            .map((obj) => (`>•  ${obj[0]}`));
+            .map((obj) => (`>• ${obj[0]}`));
     }
 
     _onOpenTag(tagName, attributes) {
@@ -92,14 +97,16 @@ class AndelParser {
     }
 
     _onText(text) {
+        const trimmedText = text.trim();
+
         if (this._parserProps.headingStarted) {
-            this._parserProps.headings.push(text);
+            this._parserProps.headings.push(trimmedText);
         }
 
-        if (this._parserProps.tableCellsCount > 1 && text.length > 1) {
+        if (this._parserProps.tableCellsCount > 1 && trimmedText > 1) {
             let tableIndex = this._parserProps.tablesCount - 1;
             let rowIndex = this._parserProps.tableRowsCount - 1;
-            this._parserProps.tables[tableIndex][rowIndex].push(text.trim());
+            this._parserProps.tables[tableIndex][rowIndex].push(trimmedText);
         }
     }
 
